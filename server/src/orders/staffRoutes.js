@@ -1,10 +1,11 @@
 import { Router } from 'express'
-import { acceptSchema, rejectSchema, deliverSchema, noteSchema, suggestMinutes } from '@fino/shared'
+import { acceptSchema, rejectSchema, deliverSchema, noteSchema, suggestMinutes, historyQuerySchema } from '@fino/shared'
 import { HttpError, validate } from '../lib/errors.js'
 import { requireAuth, requireRole } from '../auth/middleware.js'
 import { getStoreStatus } from '../store/service.js'
 import { ORDER_INCLUDE, toOrderDTO } from './dto.js'
 import { applyEvent } from './service.js'
+import { searchHistory, getStaffOrderDetail } from './history.js'
 
 const units = (dto) => dto.items.reduce((a, i) => a + i.cantidad, 0)
 
@@ -27,6 +28,16 @@ export function staffOrderRoutes(deps) {
       paraRetirar: listos.map(toOrderDTO),
       demoraMin: store.demoraMin,
     })
+  })
+
+  r.get('/history', validate(historyQuerySchema, 'query'), async (req, res) => {
+    res.json(await searchHistory(prisma, req.parsedQuery, clock.now()))
+  })
+
+  r.get('/:id', async (req, res) => {
+    const order = await getStaffOrderDetail(prisma, req.params.id)
+    if (!order) throw new HttpError(404, 'no_encontrado', 'No encontramos ese pedido.')
+    res.json({ order })
   })
 
   const act = (evento, pick = () => ({})) => async (req, res) => {
