@@ -50,3 +50,22 @@ export async function agentAs(app, rol, extra = {}) {
   }
   return a
 }
+
+/** ids del menú por nombre: { productos: {Fino: {id, variants: {Doble: id}}}, extras: {'Dip Lula': id} } */
+export async function menuIds(db = prisma) {
+  const ps = await db.product.findMany({ include: { variants: true } })
+  const es = await db.extra.findMany()
+  return {
+    p: Object.fromEntries(ps.map((p) => [p.nombre, { id: p.id, v: Object.fromEntries(p.variants.map((v) => [v.nombre, v.id])) }])),
+    e: Object.fromEntries(es.map((e) => [e.nombre, e.id])),
+  }
+}
+
+/** Crea un pedido "pago en el local" de 1 Fino ($14.500) y devuelve el OrderDTO. */
+export async function createCashOrder(agent, overrides = {}) {
+  const ids = await menuIds()
+  const body = { items: [{ productId: ids.p.Fino.id, cantidad: 1 }], metodoPago: 'local', detallePagoLocal: 'efectivo', totalEsperado: 14500, ...overrides }
+  const r = await agent.post('/api/orders').send(body)
+  if (r.status !== 201) throw new Error(`createCashOrder: ${r.status} ${JSON.stringify(r.body)}`)
+  return r.body.order
+}
