@@ -1,0 +1,32 @@
+{
+  "name": "@fino/server",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "node --watch --env-file-if-exists=../.env src/index.js",
+    "start": "node --env-file-if-exists=../.env src/index.js",
+    "test": "vitest run",
+    "db:migrate": "prisma migrate deploy",
+    "db:seed": "node --env-file-if-exists=../.env prisma/seed.js"
+  },
+  "prisma": {
+    "seed": "node prisma/seed.js"
+  },
+  "devDependencies": {
+    "socket.io-client": "^4.8.1",
+    "supertest": "^7.1.4",
+    "vitest": "^5.1.0"
+  },
+  "dependencies": {
+    "@fino/shared": "^0.1.0",
+    "@prisma/client": "^6.19.3",
+    "bcryptjs": "^3.0.2",
+    "cookie-parser": "^1.4.7",
+    "cors": "^2.8.5",
+    "express": "^5.1.0",
+    "jsonwebtoken": "^9.0.2",
+    "prisma": "^6.19.3",
+    "socket.io": "^4.8.1"
+  }
+}

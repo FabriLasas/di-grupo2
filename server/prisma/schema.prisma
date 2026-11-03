@@ -1,0 +1,196 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum Rol {
+  cliente
+  staff
+  admin
+}
+
+enum EstadoPedido {
+  pendiente_pago
+  por_aceptar
+  en_cocina
+  para_retirar
+  entregado
+  rechazado
+  cancelado
+  no_retirado
+}
+
+enum MetodoPago {
+  mp
+  local
+}
+
+enum DetallePagoLocal {
+  efectivo
+  tarjeta
+}
+
+enum EstadoPago {
+  pendiente
+  aprobado
+  rechazado
+  devuelto
+  devolucion_pendiente
+}
+
+model User {
+  id           String   @id @default(cuid())
+  nombre       String
+  email        String   @unique
+  telefono     String
+  passwordHash String
+  rol          Rol      @default(cliente)
+  creadoEn     DateTime @default(now())
+  pedidos      Order[]  @relation("cliente")
+  aceptados    Order[]  @relation("aceptadoPor")
+  eventos      OrderEvent[]
+  notas        OrderNote[]
+
+  @@index([telefono])
+}
+
+model Category {
+  id        String    @id @default(cuid())
+  nombre    String
+  orden     Int       @default(0)
+  activa    Boolean   @default(true)
+  productos Product[]
+}
+
+model Product {
+  id          String      @id @default(cuid())
+  categoriaId String
+  categoria   Category    @relation(fields: [categoriaId], references: [id])
+  nombre      String
+  descripcion String?
+  precioBase  Int
+  sinTacc     Boolean     @default(false)
+  agotado     Boolean     @default(false)
+  orden       Int         @default(0)
+  activo      Boolean     @default(true)
+  variants    Variant[]
+  items       OrderItem[]
+}
+
+model Variant {
+  id         String      @id @default(cuid())
+  productoId String
+  producto   Product     @relation(fields: [productoId], references: [id])
+  nombre     String
+  precio     Int
+  orden      Int         @default(0)
+  items      OrderItem[]
+}
+
+model Extra {
+  id     String           @id @default(cuid())
+  nombre String
+  precio Int
+  activo Boolean          @default(true)
+  usos   OrderItemExtra[]
+}
+
+model Order {
+  id               String            @id @default(cuid())
+  numero           Int               @unique @default(autoincrement())
+  clienteId        String
+  cliente          User              @relation("cliente", fields: [clienteId], references: [id])
+  estado           EstadoPedido
+  metodoPago       MetodoPago
+  detallePagoLocal DetallePagoLocal?
+  pagaCon          Int?
+  total            Int
+  nota             String?
+  minutosRetiro    Int?
+  retiroEstimado   DateTime?
+  creadoEn         DateTime          @default(now())
+  aceptadoEn       DateTime?
+  listoEn          DateTime?
+  entregadoEn      DateTime?
+  aceptadoPorId    String?
+  aceptadoPor      User?             @relation("aceptadoPor", fields: [aceptadoPorId], references: [id])
+  motivoRechazo    String?
+  items            OrderItem[]
+  eventos          OrderEvent[]
+  notas            OrderNote[]
+  payments         Payment[]
+
+  @@index([estado])
+  @@index([creadoEn])
+}
+
+model OrderItem {
+  id             String           @id @default(cuid())
+  pedidoId       String
+  pedido         Order            @relation(fields: [pedidoId], references: [id], onDelete: Cascade)
+  productoId     String
+  producto       Product          @relation(fields: [productoId], references: [id])
+  varianteId     String?
+  variante       Variant?         @relation(fields: [varianteId], references: [id])
+  cantidad       Int
+  precioUnitario Int
+  aclaracion     String?
+  sinTacc        Boolean          @default(false)
+  extras         OrderItemExtra[]
+}
+
+model OrderItemExtra {
+  id      String    @id @default(cuid())
+  itemId  String
+  item    OrderItem @relation(fields: [itemId], references: [id], onDelete: Cascade)
+  extraId String
+  extra   Extra     @relation(fields: [extraId], references: [id])
+  precio  Int
+}
+
+model OrderEvent {
+  id       String   @id @default(cuid())
+  pedidoId String
+  pedido   Order    @relation(fields: [pedidoId], references: [id], onDelete: Cascade)
+  tipo     String
+  actorId  String?
+  actor    User?    @relation(fields: [actorId], references: [id])
+  detalle  Json?
+  creadoEn DateTime @default(now())
+
+  @@index([pedidoId, creadoEn])
+}
+
+model OrderNote {
+  id       String   @id @default(cuid())
+  pedidoId String
+  pedido   Order    @relation(fields: [pedidoId], references: [id], onDelete: Cascade)
+  autorId  String
+  autor    User     @relation(fields: [autorId], references: [id])
+  texto    String
+  creadoEn DateTime @default(now())
+}
+
+model Payment {
+  id             String     @id @default(cuid())
+  pedidoId       String
+  pedido         Order      @relation(fields: [pedidoId], references: [id], onDelete: Cascade)
+  mpPreferenceId String?
+  mpPaymentId    String?    @unique
+  estado         EstadoPago @default(pendiente)
+  monto          Int
+  raw            Json?
+  creadoEn       DateTime   @default(now())
+}
+
+model StoreSettings {
+  id            Int     @id @default(1)
+  abierto       Boolean @default(true)
+  pausado       Boolean @default(false)
+  horario       Json
+  demoraBaseMin Int     @default(10)
+}
