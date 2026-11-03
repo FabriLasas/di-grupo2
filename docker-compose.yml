@@ -1,0 +1,13 @@
+services:
+  db:
+    image: postgres:16
+    environment:
+      POSTGRES_USER: fino
+      POSTGRES_PASSWORD: fino
+      POSTGRES_DB: fino
+    ports:
+      - "5432:5432"
+    volumes:
+      - fino-db:/var/lib/postgresql/data
+volumes:
+  fino-db:

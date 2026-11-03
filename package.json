@@ -1,0 +1,10 @@
+{
+  "name": "fino",
+  "private": true,
+  "type": "module",
+  "workspaces": ["packages/*", "server", "apps/*"],
+  "scripts": {
+    "test": "npm test -w @fino/shared && npm test -w @fino/server --if-present",
+    "db:up": "docker compose up -d db"
+  }
+}
