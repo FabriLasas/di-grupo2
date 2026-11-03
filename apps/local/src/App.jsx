@@ -7,6 +7,7 @@ import { hhmm } from './lib/time.js'
 import { createDinger } from './state/alerts.js'
 import { LoginScreen } from './screens/LoginScreen.jsx'
 import { BoardScreen } from './screens/BoardScreen.jsx'
+import { HistoryScreen } from './screens/HistoryScreen.jsx'
 import { TopBar } from './ui/TopBar.jsx'
 import { DetailSheet } from './ui/DetailSheet.jsx'
 import { Toast } from './ui/Toast.jsx'
@@ -100,8 +101,10 @@ function Live({ clock, dinger, flash }) {
       <TopBar tab={tab} onTab={setTab} active={active} query={query} onQuery={setQuery} delayMin={state.demoraMin} paused={state.paused} onTogglePause={togglePause} now={now} onLogout={logout} />
       {state.paused ? <p className="banner paused">Pedidos pausados. La web le avisa a los clientes que Fino no está tomando pedidos por unos minutos.</p> : <div />}
       {!state.online ? <p className="banner offline" role="alert">Sin conexión. Reintentando…</p> : <div />}
-      <BoardScreen query={query} now={now} onOpen={setOpenId} cookActions={cookActions} readyActions={readyActions} alertNew={flash} />
-      {open && (
+      {tab === 'live'
+        ? <BoardScreen query={query} now={now} onOpen={setOpenId} cookActions={cookActions} readyActions={readyActions} alertNew={flash} />
+        : <HistoryScreen query={query} now={now} onToast={setToast} />}
+      {tab === 'live' && open && (
         <DetailSheet
           order={open} position={{ index: Math.max(idx, 0), total: Math.max(pending.length, 1) }} demoraMin={state.demoraMin} now={now} busy={busy} warning={warning}
           onPrev={() => idx > 0 && setOpenId(pending[idx - 1].id)} onNext={() => (idx >= 0 ? idx + 1 < pending.length && setOpenId(pending[idx + 1].id) : pending[0] && setOpenId(pending[0].id))} onClose={() => setOpenId(null)}

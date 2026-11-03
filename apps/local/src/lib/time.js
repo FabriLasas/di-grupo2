@@ -28,3 +28,13 @@ export function waitState(listoEn, now) {
   const m = minsSince(listoEn, now)
   return { state: m >= 10 ? 'late' : m >= 5 ? 'warn' : 'ok', label: m < 1 ? 'Recién listo' : `Espera ${Math.floor(m)} min` }
 }
+
+const ymdFmt = new Intl.DateTimeFormat('en-CA', { timeZone: 'America/Argentina/Buenos_Aires', year: 'numeric', month: '2-digit', day: '2-digit' })
+/** Día de trabajo (corte 06:00 en Buenos Aires) como YYYY-MM-DD, igual que el server. */
+export const businessDay = (now) => ymdFmt.format(new Date(now.getTime() - 6 * 3600000))
+/** Suma días a una fecha YYYY-MM-DD. */
+export function shiftDay(ymd, days) {
+  const d = new Date(`${ymd}T12:00:00Z`)
+  d.setUTCDate(d.getUTCDate() + days)
+  return d.toISOString().slice(0, 10)
+}
