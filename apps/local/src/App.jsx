@@ -9,6 +9,7 @@ import { BoardScreen } from './screens/BoardScreen.jsx'
 import { TopBar } from './ui/TopBar.jsx'
 import { DetailSheet } from './ui/DetailSheet.jsx'
 import { Toast } from './ui/Toast.jsx'
+import { CookActions, ReadyActions } from './ui/CardActions.jsx'
 
 const first = (n) => n.split(' ')[0]
 
@@ -50,12 +51,33 @@ function Live({ clock }) {
     goNext(o.id)
   }
 
+  /** Acción simple sobre una tarjeta: llama a la API, actualiza el tablero y avisa. */
+  const act = async (fn, ok) => {
+    setBusy(true)
+    try {
+      const { order } = await fn()
+      dispatch({ type: 'upsert', order })
+      setToast({ text: ok(order) })
+    } catch (err) {
+      setToast({ text: err.message, bad: true })
+      if (err.status === 409) reload()
+    } finally {
+      setBusy(false)
+    }
+  }
+  const cookActions = (o) => <CookActions order={o} busy={busy} onReady={(x) => act(() => api.ready(x.id), () => `${x.numeroLabel} listo. Le avisamos a ${first(x.cliente.nombre)}.`)} />
+  const readyActions = (o) => (
+    <ReadyActions order={o} busy={busy}
+      onDeliver={(x, cobro) => act(() => api.deliver(x.id, cobro), () => `${x.numeroLabel} entregado.`)}
+      onNotPickedUp={(x) => act(() => api.notPickedUp(x.id), () => `${x.numeroLabel} marcado como no retirado.`)} />
+  )
+
   return (
     <div className="app">
       <TopBar tab={tab} onTab={setTab} active={active} query={query} onQuery={setQuery} delayMin={state.demoraMin} paused={false} onTogglePause={() => {}} now={now} onLogout={logout} />
       <div />
       <div />
-      <BoardScreen query={query} now={now} onOpen={setOpenId} />
+      <BoardScreen query={query} now={now} onOpen={setOpenId} cookActions={cookActions} readyActions={readyActions} />
       {open && (
         <DetailSheet
           order={open} position={{ index: idx, total: pending.length }} demoraMin={state.demoraMin} now={now} busy={busy}
