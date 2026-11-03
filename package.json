@@ -2,9 +2,14 @@
   "name": "fino",
   "private": true,
   "type": "module",
-  "workspaces": ["packages/*", "server", "apps/*"],
+  "workspaces": [
+    "packages/*",
+    "server",
+    "apps/*"
+  ],
   "scripts": {
-    "test": "npm test -w @fino/shared && npm test -w @fino/server --if-present",
-    "db:up": "docker compose up -d db"
+    "test": "npm test -w @fino/shared && npm test -w @fino/server && npm test -w @fino/web",
+    "db:up": "docker compose up -d db",
+    "dev": "npm run dev -w @fino/server & npm run dev -w @fino/web"
   }
 }

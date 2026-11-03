@@ -1,0 +1,12 @@
+/* ---------- Tablero ---------- */
+.tablero { min-height: 100dvh; background: repeating-conic-gradient(var(--check-a) 0 25%, var(--check-b) 0 50%) 0 0 / 56px 56px; animation: checker 18s linear infinite; padding: max(14px, env(safe-area-inset-top)) max(16px, env(safe-area-inset-right)) 120px max(16px, env(safe-area-inset-left)); }
+@keyframes checker { to { background-position: 56px 56px; } }
+.shell { max-width: 560px; margin: 0 auto; display: grid; gap: 14px; }
+.top { display: flex; align-items: center; gap: 10px; color: var(--crema); }
+.top .logo { width: 48px; height: 48px; border-radius: 50%; box-shadow: 0 0 0 3px rgb(255 255 255 / .15); }
+.top .pickup { font-size: 12px; font-weight: 600; background: rgb(0 0 0 / .28); padding: 6px 12px; border-radius: 999px; }
+.top nav { margin-left: auto; display: flex; gap: 6px; }
+.top nav a, .top nav button { border: 0; background: rgb(0 0 0 / .28); color: var(--crema); font-size: 12.5px; font-weight: 600; text-decoration: none; padding: 8px 12px; border-radius: 999px; min-height: 36px; display: inline-flex; align-items: center; }
+.card { background: var(--crema); color: var(--bordo); border-radius: var(--radius); padding: 18px 16px 22px; box-shadow: 0 0 0 4px rgb(255 255 255 / .12); }
+.card > h1 { font-size: 44px; text-align: center; padding-bottom: 12px; border-bottom: 2px solid var(--bordo); margin-bottom: 14px; }
+.masc { display: block; background: currentColor; -webkit-mask: url(../assets/mascota.png) center / contain no-repeat; mask: url(../assets/mascota.png) center / contain no-repeat; }
