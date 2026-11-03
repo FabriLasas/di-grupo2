@@ -22,11 +22,18 @@ export function verifySession(token, secret) {
   try { return jwt.verify(token, secret, { algorithms: ['HS256'] }) } catch { return null }
 }
 
+const cookieOpts = (config) => ({
+  httpOnly: true,
+  sameSite: config.cookieSameSite,
+  secure: config.production || config.cookieSameSite === 'none',
+  path: '/',
+})
+
 export function setSessionCookie(res, user, config) {
   const { token, maxAgeMs } = signSession(user, config.jwtSecret)
-  res.cookie(COOKIE, token, { httpOnly: true, sameSite: 'lax', secure: config.production, maxAge: maxAgeMs, path: '/' })
+  res.cookie(COOKIE, token, { ...cookieOpts(config), maxAge: maxAgeMs })
 }
 
 export function clearSessionCookie(res, config) {
-  res.clearCookie(COOKIE, { httpOnly: true, sameSite: 'lax', secure: config.production, path: '/' })
+  res.clearCookie(COOKIE, cookieOpts(config))
 }

@@ -17,4 +17,4 @@ const deps = { prisma, payments, clock: systemClock, config }
 const { httpServer, realtime } = createServer(deps)
 setInterval(() => reconcilePending({ ...deps, realtime }).catch((e) => console.error('reconcile:', e)), 5 * 60000)
 
-httpServer.listen(config.port, () => console.log(`FINO API en ${config.publicUrl}`))
+httpServer.listen(config.port, () => console.log(`FINO API escuchando en el puerto ${config.port}`))

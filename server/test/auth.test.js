@@ -72,3 +72,11 @@ test('body inválido → 400 validacion con details', async () => {
   expect(r.body.error.code).toBe('validacion')
   expect(Array.isArray(r.body.error.details)).toBe(true)
 })
+
+test('con COOKIE_SAMESITE=none la cookie sale SameSite=None y Secure (web y API en dominios distintos)', async () => {
+  const { loadConfig } = await import('../src/config.js')
+  const { app: cross } = makeTestApp({ config: loadConfig({ ...process.env, COOKIE_SAMESITE: 'none' }) })
+  const r = await request(cross).post('/api/auth/login').send({ email: 'staff@fino.test', password: 'fino1234' })
+  expect(r.headers['set-cookie'][0]).toMatch(/SameSite=None/)
+  expect(r.headers['set-cookie'][0]).toMatch(/Secure/)
+})
