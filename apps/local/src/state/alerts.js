@@ -1,3 +1,5 @@
+import { useEffect } from 'react'
+
 /**
  * "Ding" con Web Audio: dos tonos cortos. Los navegadores exigen una interacción
  * antes de reproducir sonido, por eso arranca bloqueado hasta unlock().
@@ -25,4 +27,20 @@ export function createDinger(makeContext = () => new (window.AudioContext || win
     },
   }
   return d
+}
+
+/** Mantiene la pantalla encendida mientras la app está visible (si el navegador lo permite). */
+export function useWakeLock() {
+  useEffect(() => {
+    if (!('wakeLock' in navigator)) return
+    let lock = null
+    let alive = true
+    const ask = async () => {
+      if (document.visibilityState !== 'visible') return
+      try { lock = await navigator.wakeLock.request('screen'); if (!alive) lock?.release?.() } catch { /* sin permiso o sin batería */ }
+    }
+    ask()
+    document.addEventListener('visibilitychange', ask)
+    return () => { alive = false; document.removeEventListener('visibilitychange', ask); lock?.release?.() }
+  }, [])
 }

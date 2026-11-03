@@ -4,7 +4,7 @@ import { BoardProvider, useBoard, selectLanes } from './state/board.jsx'
 import { systemClock, useNow } from './state/clock.js'
 import * as api from './api/endpoints.js'
 import { hhmm } from './lib/time.js'
-import { createDinger } from './state/alerts.js'
+import { createDinger, useWakeLock } from './state/alerts.js'
 import { LoginScreen } from './screens/LoginScreen.jsx'
 import { BoardScreen } from './screens/BoardScreen.jsx'
 import { HistoryScreen } from './screens/HistoryScreen.jsx'
@@ -19,6 +19,7 @@ const GONE_MSG = { cancelado: 'El cliente canceló este pedido.', en_cocina: 'Ot
 
 function Live({ clock, dinger, flash }) {
   const { logout } = useAuth()
+  useWakeLock()
   const { state, dispatch, reload } = useBoard()
   const now = useNow(clock)
   const [tab, setTab] = useState('live')
@@ -120,10 +121,20 @@ function Live({ clock, dinger, flash }) {
 function Shell({ clock, dinger }) {
   const { user, loading } = useAuth()
   const [flash, setFlash] = useState(0)
+  const [soundOn, setSoundOn] = useState(dinger.unlocked)
   const onNew = useCallback(() => { dinger.ding(); setFlash((n) => n + 1) }, [dinger])
   if (loading) return <main className="login" aria-busy="true" />
   if (!user) return <LoginScreen />
-  return <BoardProvider onNew={onNew}><Live clock={clock} dinger={dinger} flash={flash} /></BoardProvider>
+  return (
+    <BoardProvider onNew={onNew}>
+      <Live clock={clock} dinger={dinger} flash={flash} />
+      {!soundOn && (
+        <div className="unlock">
+          <button type="button" onClick={() => { dinger.unlock(); setSoundOn(true) }}>Tocá para activar el sonido</button>
+        </div>
+      )}
+    </BoardProvider>
+  )
 }
 
 export default function App({ clock = systemClock, dinger: injected }) {
