@@ -90,3 +90,10 @@
 .sum b { font-family: var(--f-display); font-weight: 400; font-size: 30px; }
 .card .btn.block { display: flex; justify-content: center; align-items: center; text-decoration: none; margin-top: 8px; }
 .empty .masc-lg { width: 160px; height: 126px; color: var(--bordo); }
+
+/* ---------- Cuenta ---------- */
+.tabs { display: grid; grid-template-columns: 1fr 1fr; gap: 4px; background: rgb(110 28 37 / .08); padding: 4px; border-radius: 999px; margin-bottom: 16px; }
+.tabs button { border: 0; background: transparent; color: var(--bordo); font-weight: 700; min-height: 40px; border-radius: 999px; }
+.tabs button[aria-selected="true"] { background: var(--bordo); color: var(--crema); }
+.form { display: grid; gap: 12px; margin-top: 14px; }
+.form-err { background: #FBE3E1; color: var(--error); font-weight: 600; font-size: 13.5px; padding: 10px 12px; border-radius: 12px; }

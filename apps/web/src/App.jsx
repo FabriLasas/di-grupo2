@@ -1,5 +1,5 @@
 import { useCallback, useRef, useState } from 'react'
-import { Routes, Route } from 'react-router'
+import { Routes, Route, Link } from 'react-router'
 import { Tablero } from './ui/Tablero.jsx'
 import { CartBar } from './ui/CartBar.jsx'
 import { ProductSheet, hasOptions } from './ui/ProductSheet.jsx'
@@ -7,8 +7,19 @@ import { Mascot } from './ui/Mascot.jsx'
 import { flyToCart } from './ui/fly.js'
 import { StoreProvider, useStore } from './state/store.jsx'
 import { CartProvider, useCart } from './state/cart.jsx'
+import { AuthProvider, useAuth, RequireAuth } from './state/auth.jsx'
 import { MenuScreen } from './screens/MenuScreen.jsx'
 import { CartScreen } from './screens/CartScreen.jsx'
+import { AuthScreen } from './screens/AuthScreen.jsx'
+import { CheckoutScreen } from './screens/CheckoutScreen.jsx'
+
+function Page({ children, pickup }) {
+  const { user, logout } = useAuth()
+  const nav = user
+    ? <><Link to="/mis-pedidos">Mis pedidos</Link><button type="button" onClick={logout}>Salir</button></>
+    : <Link to="/ingresar">Ingresar</Link>
+  return <Tablero pickup={pickup} nav={nav}>{children}</Tablero>
+}
 
 function Home() {
   const { store, menu, productById } = useStore()
@@ -24,24 +35,28 @@ function Home() {
   }
 
   return (
-    <Tablero pickup={store?.aceptaPedidos ? `Retirás en ~${store.demoraMin} min` : null}>
+    <Page pickup={store?.aceptaPedidos ? `Retirás en ~${store.demoraMin} min` : null}>
       <MenuScreen onAdd={onAdd} />
       <Mascot className="peek" />
       <CartBar countRef={countRef} />
       {open && <ProductSheet product={open} extras={menu?.extras ?? []} onClose={() => setOpen(null)} onAdd={(line, el) => { setOpen(null); addLine(line, el) }} />}
-    </Tablero>
+    </Page>
   )
 }
 
-export default function App() {
+export default function App({ redirect }) {
   return (
     <StoreProvider>
-      <CartProvider>
-        <Routes>
-          <Route path="/carrito" element={<Tablero><CartScreen /></Tablero>} />
-          <Route path="*" element={<Home />} />
-        </Routes>
-      </CartProvider>
+      <AuthProvider>
+        <CartProvider>
+          <Routes>
+            <Route path="/carrito" element={<Page><CartScreen /></Page>} />
+            <Route path="/ingresar" element={<Page><AuthScreen /></Page>} />
+            <Route path="/checkout" element={<Page><RequireAuth><CheckoutScreen redirect={redirect} /></RequireAuth></Page>} />
+            <Route path="*" element={<Home />} />
+          </Routes>
+        </CartProvider>
+      </AuthProvider>
     </StoreProvider>
   )
 }
