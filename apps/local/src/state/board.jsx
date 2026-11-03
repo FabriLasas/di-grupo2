@@ -1,8 +1,9 @@
-import { createContext, useCallback, useContext, useEffect, useMemo, useReducer } from 'react'
+import { createContext, useCallback, useContext, useEffect, useMemo, useReducer, useRef } from 'react'
 import { ACTIVE_STATES } from '@fino/shared'
-import { getBoard } from '../api/endpoints.js'
+import { getBoard, getStore } from '../api/endpoints.js'
+import { connectSocket } from '../api/socket.js'
 
-const INITIAL = { byId: {}, demoraMin: null, loaded: false, error: null }
+const INITIAL = { byId: {}, gone: {}, demoraMin: null, paused: false, online: true, loaded: false, error: null, fresh: null }
 
 export function boardReducer(state = INITIAL, action) {
   switch (action.type) {
@@ -14,9 +15,10 @@ export function boardReducer(state = INITIAL, action) {
     case 'upsert': {
       const { order } = action
       const byId = { ...state.byId }
-      if (ACTIVE_STATES.includes(order.estado)) byId[order.id] = { ...byId[order.id], ...order }
-      else delete byId[order.id]
-      return { ...state, byId }
+      const gone = { ...state.gone }
+      if (ACTIVE_STATES.includes(order.estado)) { byId[order.id] = { ...byId[order.id], ...order }; delete gone[order.id] }
+      else { delete byId[order.id]; gone[order.id] = order.estado }
+      return { ...state, byId, gone, fresh: action.fresh ? order.id : state.fresh }
     }
     case 'remove': {
       const byId = { ...state.byId }
@@ -24,6 +26,8 @@ export function boardReducer(state = INITIAL, action) {
       return { ...state, byId }
     }
     case 'delay': return { ...state, demoraMin: action.demoraMin }
+    case 'store': return { ...state, paused: action.store.pausado, demoraMin: action.store.demoraMin ?? state.demoraMin }
+    case 'online': return { ...state, online: action.online }
     case 'error': return { ...state, error: action.error }
     default: return state
   }
@@ -52,12 +56,29 @@ export function selectLanes(state, query = '') {
 
 const Ctx = createContext(null)
 
-export function BoardProvider({ children }) {
+/** Carga el tablero y lo mantiene al día con el socket. onNew se llama con cada pedido nuevo. */
+export function BoardProvider({ children, onNew }) {
   const [state, dispatch] = useReducer(boardReducer, INITIAL)
+  const onNewRef = useRef(onNew)
+  onNewRef.current = onNew
   const reload = useCallback(async () => {
     try { dispatch({ type: 'load', ...(await getBoard()) }) } catch (error) { dispatch({ type: 'error', error }) }
   }, [])
-  useEffect(() => { reload() }, [reload])
+  useEffect(() => {
+    reload()
+    getStore().then((store) => dispatch({ type: 'store', store })).catch(() => {})
+    const socket = connectSocket()
+    let wasDown = false
+    const handlers = {
+      'order:new': (order) => { dispatch({ type: 'upsert', order, fresh: true }); onNewRef.current?.(order) },
+      'order:updated': (order) => dispatch({ type: 'upsert', order }),
+      'store:updated': (store) => dispatch({ type: 'store', store }),
+      disconnect: () => { wasDown = true; dispatch({ type: 'online', online: false }) },
+      connect: () => { dispatch({ type: 'online', online: true }); if (wasDown) { wasDown = false; reload() } },
+    }
+    for (const [ev, fn] of Object.entries(handlers)) socket.on(ev, fn)
+    return () => { for (const [ev, fn] of Object.entries(handlers)) socket.off(ev, fn); socket.close() }
+  }, [reload])
   const value = useMemo(() => ({ state, dispatch, reload }), [state, reload])
   return <Ctx.Provider value={value}>{children}</Ctx.Provider>
 }
