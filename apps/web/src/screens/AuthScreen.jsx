@@ -27,7 +27,8 @@ export function AuthScreen() {
   const { login, register } = useAuth()
   const nav = useNavigate()
   const [params] = useSearchParams()
-  const back = params.get('volver')?.startsWith('/') ? params.get('volver') : '/'
+  const raw = params.get('volver') ?? ''
+  const back = raw.startsWith('/') && !raw.startsWith('//') && !raw.startsWith('/\\') ? raw : '/'
   const [mode, setMode] = useState('login')
   const [f, setF] = useState({ nombre: '', telefono: '', email: '', password: '' })
   const [errors, setErrors] = useState({})

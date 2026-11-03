@@ -56,3 +56,12 @@ test('con sesión la cabecera muestra Mis pedidos y Salir', async () => {
   expect(await screen.findByRole('link', { name: 'Ingresar' })).toBeInTheDocument()
   expect(calls.some((c) => c.path === '/api/auth/logout')).toBe(true)
 })
+
+test('volver a un dominio externo se ignora y va al menú', async () => {
+  mockApi({ 'POST /api/auth/login': () => [200, { user: USER }] })
+  renderApp('/ingresar?volver=%2F%2Fevil.com')
+  await userEvent.type(await screen.findByLabelText('Email'), 'tomas@x.com')
+  await userEvent.type(screen.getByLabelText('Contraseña'), 'secreta123')
+  await userEvent.click(screen.getByRole('button', { name: 'Ingresar' }))
+  expect(await screen.findByRole('heading', { name: 'Menú Fino' })).toBeInTheDocument()
+})

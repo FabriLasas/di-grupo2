@@ -13,6 +13,9 @@ export function flyToCart(fromEl, toEl, onDone = () => {}) {
     { transform: `translate(${(x0 + x1) / 2}px, ${Math.min(y0, y1) - 90}px) scale(1.2)`, offset: 0.5 },
     { transform: `translate(${x1}px, ${y1}px) scale(.5)` },
   ], { duration: 650, easing: 'cubic-bezier(.5,0,.5,1)' })
-  const end = () => { dot.remove(); onDone() }
+  let done = false
+  const end = () => { if (done) return; done = true; clearTimeout(timer); dot.remove(); onDone() }
+  // respaldo: si el navegador no resuelve "finished" (pestaña en segundo plano, etc.) igual se borra
+  const timer = setTimeout(end, 900)
   if (anim?.finished) anim.finished.then(end, end); else end()
 }
