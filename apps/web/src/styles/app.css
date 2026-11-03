@@ -97,3 +97,11 @@
 .tabs button[aria-selected="true"] { background: var(--bordo); color: var(--crema); }
 .form { display: grid; gap: 12px; margin-top: 14px; }
 .form-err { background: #FBE3E1; color: var(--error); font-weight: 600; font-size: 13.5px; padding: 10px 12px; border-radius: 12px; }
+
+/* ---------- Checkout ---------- */
+form.card { display: grid; gap: 14px; }
+form.card .sum { padding: 4px 0; }
+.opts.sub { padding-left: 14px; border-left: 3px solid rgb(110 28 37 / .2); }
+.sr { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
+.ok-text { color: var(--ok); font-weight: 700; font-size: 13.5px; }
+.btn.big { min-height: 56px; font-size: 16px; }

@@ -46,3 +46,14 @@ export function mockApi(routes = {}) {
 export function renderApp(path = '/', props = {}) {
   return render(<MemoryRouter initialEntries={[path]}><App {...props} /></MemoryRouter>)
 }
+
+export const FINO_LINE = { productId: 'fino', variantId: null, extras: [], sinTacc: false, aclaracion: '', cantidad: 1, nombre: 'Fino', varianteNombre: null, extrasNombres: [], precioUnitario: 14500 }
+export const VEGGIE_LINE = { ...FINO_LINE, productId: 'veggie', nombre: 'Veggie', precioUnitario: 17500 }
+export function seedCart(lines) { localStorage.setItem('fino.cart.v1', JSON.stringify(lines)) }
+export const ORDER = {
+  id: 'o1', numero: 427, numeroLabel: '#0427', estado: 'por_aceptar', cliente: { nombre: 'Tomás Rodríguez', telefono: '1154328817' },
+  metodoPago: 'local', detallePagoLocal: 'efectivo', pagaCon: null, vuelto: null, total: 14500, nota: null, minutosRetiro: null,
+  retiroEstimado: null, motivoRechazo: null, creadoEn: '2026-11-04T00:12:00.000Z', aceptadoEn: null, listoEn: null, entregadoEn: null,
+  items: [{ cantidad: 1, producto: 'Fino', variante: null, aclaracion: null, sinTacc: false, extras: [], precioUnitario: 14500, subtotal: 14500, productId: 'fino', variantId: null, extraIds: [] }],
+  pago: null,
+}

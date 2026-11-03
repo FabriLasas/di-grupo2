@@ -12,6 +12,7 @@ import { MenuScreen } from './screens/MenuScreen.jsx'
 import { CartScreen } from './screens/CartScreen.jsx'
 import { AuthScreen } from './screens/AuthScreen.jsx'
 import { CheckoutScreen } from './screens/CheckoutScreen.jsx'
+import { OrderScreen } from './screens/OrderScreen.jsx'
 
 function Page({ children, pickup }) {
   const { user, logout } = useAuth()
@@ -53,6 +54,7 @@ export default function App({ redirect }) {
             <Route path="/carrito" element={<Page><CartScreen /></Page>} />
             <Route path="/ingresar" element={<Page><AuthScreen /></Page>} />
             <Route path="/checkout" element={<Page><RequireAuth><CheckoutScreen redirect={redirect} /></RequireAuth></Page>} />
+            <Route path="/pedido/:id" element={<Page><RequireAuth><OrderScreen /></RequireAuth></Page>} />
             <Route path="*" element={<Home />} />
           </Routes>
         </CartProvider>
