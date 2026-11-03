@@ -58,3 +58,14 @@ export function mockApi(routes = {}) {
 }
 
 export const renderApp = (path = '/', props = {}) => render(<MemoryRouter initialEntries={[path]}><App {...props} /></MemoryRouter>)
+
+/** Reloj manual: clock.tick(ms) avanza y avisa a los suscriptores. */
+export function makeClock(start = NOW) {
+  let t = start.getTime()
+  const subs = new Set()
+  return {
+    now: () => new Date(t),
+    subscribe: (fn) => { subs.add(fn); return () => subs.delete(fn) },
+    tick: (ms) => { t += ms; subs.forEach((fn) => fn()) },
+  }
+}
