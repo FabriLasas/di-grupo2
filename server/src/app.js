@@ -6,6 +6,7 @@ import { authRoutes } from './auth/routes.js'
 import { adminRoutes } from './admin/routes.js'
 import { menuRoutes } from './menu/routes.js'
 import { orderRoutes } from './orders/routes.js'
+import { staffOrderRoutes } from './orders/staffRoutes.js'
 import { storeRoutes, staffStoreRoutes } from './store/routes.js'
 
 /**
@@ -26,6 +27,7 @@ export function createApp(deps) {
   api.use('/menu', menuRoutes(deps))
   api.use('/store', storeRoutes(deps))
   api.use('/orders', orderRoutes(deps))
+  api.use('/staff/orders', staffOrderRoutes(deps))
   api.use('/staff/store', staffStoreRoutes(deps))
   app.use('/api', api)
 

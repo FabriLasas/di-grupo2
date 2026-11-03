@@ -2,7 +2,7 @@ import { Router } from 'express'
 import { createOrderSchema } from '@fino/shared'
 import { validate } from '../lib/errors.js'
 import { requireAuth } from '../auth/middleware.js'
-import { createOrder, getOrderFor } from './service.js'
+import { createOrder, getOrderFor, applyEvent } from './service.js'
 import { ORDER_INCLUDE, toOrderDTO } from './dto.js'
 
 export function orderRoutes(deps) {
@@ -21,6 +21,11 @@ export function orderRoutes(deps) {
 
   r.get('/:id', async (req, res) => {
     res.json({ order: toOrderDTO(await getOrderFor(prisma, req.user, req.params.id)) })
+  })
+
+  r.post('/:id/cancel', async (req, res) => {
+    await getOrderFor(prisma, { ...req.user, rol: 'cliente' }, req.params.id)
+    res.json({ order: await applyEvent(deps, { orderId: req.params.id, evento: 'cancelar', actor: req.user }) })
   })
 
   return r

@@ -68,3 +68,21 @@ export async function getOrderFor(prisma, user, id) {
   if (!o || (user.rol === 'cliente' && o.clienteId !== user.id)) throw new HttpError(404, 'no_encontrado', 'No encontramos ese pedido.')
   return o
 }
+
+import { transition } from './transition.js'
+import { refundOrder } from '../payments/refund.js'
+
+/**
+ * Aplica un evento al pedido, avisa por tiempo real y, si corresponde, devuelve el pago.
+ * @returns {Promise<object>} OrderDTO
+ */
+export async function applyEvent(deps, { orderId, evento, actor = null, data = {} }) {
+  const order = await transition(deps.prisma, { orderId, evento, actorId: actor?.id ?? null, data, now: deps.clock.now() })
+  if ((evento === 'rechazar' || evento === 'cancelar') && order.payments.some((p) => p.estado === 'aprobado')) {
+    await refundOrder(deps, order)
+  }
+  const fresh = await deps.prisma.order.findUniqueOrThrow({ where: { id: orderId }, include: ORDER_INCLUDE })
+  const dto = toOrderDTO(fresh)
+  deps.realtime.emitOrder(dto, evento === 'pago_aprobado' ? 'order:new' : 'order:updated')
+  return dto
+}
