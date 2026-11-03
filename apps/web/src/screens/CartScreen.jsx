@@ -1,4 +1,4 @@
-import { Link } from 'react-router'
+import { Link, useLocation } from 'react-router'
 import { formatPrice } from '@fino/shared'
 import { useCart } from '../state/cart.jsx'
 import { Mascot } from '../ui/Mascot.jsx'
@@ -24,7 +24,7 @@ export function CartLines({ readOnly = false }) {
           ) : (
             <div className="stepper small">
               <button type="button" aria-label={`Quitar uno de ${l.nombre}`} onClick={() => dec(l.key)}>−</button>
-              <output>{l.cantidad}</output>
+              <span className="n">{l.cantidad}</span>
               <button type="button" aria-label={`Sumar uno de ${l.nombre}`} onClick={() => inc(l.key)}>+</button>
             </div>
           )}
@@ -37,6 +37,7 @@ export function CartLines({ readOnly = false }) {
 
 export function CartScreen() {
   const { lines, total } = useCart()
+  const notice = useLocation().state?.notice
   if (!lines.length) {
     return (
       <section className="card center empty">
@@ -50,6 +51,7 @@ export function CartScreen() {
   return (
     <section className="card">
       <h1 className="h-sm">Tu pedido</h1>
+      {notice && <p className="notice" role="status">{notice}</p>}
       <CartLines />
       <div className="sum"><span>Total</span><b>{formatPrice(total)}</b></div>
       <Link className="btn block" to="/checkout">Continuar</Link>

@@ -118,3 +118,20 @@ form.card .sum { padding: 4px 0; }
 .prog span { display: block; font-size: 10px; font-weight: 700; text-transform: uppercase; color: var(--suave); margin-top: 6px; }
 .track .num { font-family: var(--f-mono); font-size: 12.5px; border-top: 1.5px dashed var(--bordo); padding-top: 10px; }
 .confirm-row { display: grid; grid-template-columns: 1fr auto auto; gap: 8px; align-items: center; text-align: left; font-weight: 600; font-size: 14px; }
+
+/* ---------- Mis pedidos ---------- */
+.stepper .n { min-width: 22px; text-align: center; font-weight: 700; }
+.orders { display: grid; gap: 10px; margin-top: 12px; }
+.order { border: 2px solid rgb(110 28 37 / .15); border-radius: 16px; padding: 12px 14px; display: grid; gap: 6px; }
+.o-top { display: flex; justify-content: space-between; align-items: center; gap: 8px; }
+.o-top b { font-family: var(--f-display); font-weight: 400; font-size: 24px; }
+.chip-st { font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: .04em; padding: 3px 9px; border-radius: 999px; background: var(--crema-2); }
+.st-entregado { background: #DDF1E5; color: #1D6B41; }
+.st-rechazado, .st-cancelado, .st-no_retirado { background: #F9DEDC; color: #8C1D18; }
+.st-para_retirar, .st-en_cocina { background: var(--mostaza); color: var(--bordo-ink); }
+.o-items { font-size: 13px; color: #5a2a30; }
+.o-foot { display: flex; justify-content: space-between; font-size: 12.5px; }
+.o-date { font-family: var(--f-mono); color: var(--suave); }
+.o-tot { font-family: var(--f-mono); font-weight: 600; }
+.o-act { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-top: 4px; }
+.o-act .btn { display: inline-flex; justify-content: center; align-items: center; text-decoration: none; min-height: 42px; }
