@@ -119,3 +119,11 @@ test('pagaCon menor al total → 400 paga_con_insuficiente', async () => {
   expect(r.status).toBe(400)
   expect(r.body.error.code).toBe('paga_con_insuficiente')
 })
+
+test('los ítems traen ids de producto, variante y extras para repetir el pedido', async () => {
+  const r = await cliente.post('/api/orders').send({
+    items: [{ productId: ids.p.Cheesebacon.id, variantId: ids.p.Cheesebacon.v.Doble, cantidad: 1, extras: [ids.e['Dip Ranch']] }],
+    metodoPago: 'local', detallePagoLocal: 'tarjeta', totalEsperado: 16500,
+  })
+  expect(r.body.order.items[0]).toMatchObject({ productId: ids.p.Cheesebacon.id, variantId: ids.p.Cheesebacon.v.Doble, extraIds: [ids.e['Dip Ranch']] })
+})

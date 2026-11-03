@@ -29,6 +29,9 @@ export function toOrderDTO(o) {
     listoEn: o.listoEn,
     entregadoEn: o.entregadoEn,
     items: o.items.map((i) => ({
+      productId: i.productoId,
+      variantId: i.varianteId,
+      extraIds: i.extras.map((e) => e.extraId),
       cantidad: i.cantidad,
       producto: i.producto.nombre,
       variante: i.variante?.nombre ?? null,

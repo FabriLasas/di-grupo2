@@ -3,6 +3,8 @@ import { screen } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import { mockApi, renderApp, USER, STORE_OK, ORDER, FINO_LINE, VEGGIE_LINE, seedCart } from './utils.jsx'
 
+vi.mock('../src/api/socket.js', () => ({ connectSocket: () => ({ close() {} }), subscribeOrder: () => () => {} }))
+
 const ME = { 'GET /api/auth/me': () => [200, { user: USER }] }
 
 test('pago en el local en efectivo manda el body correcto y va al seguimiento', async () => {
@@ -20,7 +22,7 @@ test('pago en el local en efectivo manda el body correcto y va al seguimiento', 
     items: [{ productId: 'fino', cantidad: 1, aclaracion: 'Sin pepinillos', sinTacc: false, extras: ['dlula'] }],
     metodoPago: 'local', detallePagoLocal: 'efectivo', pagaCon: 20000, nota: 'Paso en moto', totalEsperado: 16500,
   })
-  expect(await screen.findByText('#0427')).toBeInTheDocument()
+  expect(await screen.findByText(/Pedido #0427/)).toBeInTheDocument()
   expect(JSON.parse(localStorage.getItem('fino.cart.v1'))).toEqual([])
 })
 
