@@ -31,6 +31,8 @@ export async function apiFetch(path, { method = 'GET', body } = {}) {
   try { data = await res.json() } catch { /* respuesta sin JSON */ }
   if (!res.ok) {
     const e = data?.error
+    // la sesión venció: la app vuelve al login
+    if (res.status === 401 && e?.code === 'no_autenticado') window.dispatchEvent(new Event('fino:unauthorized'))
     throw new ApiError(res.status, e?.code ?? 'red', e?.message ?? 'Algo salió mal. Probá de nuevo en un momento.', e?.details)
   }
   return data

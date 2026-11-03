@@ -10,6 +10,9 @@ export function AuthProvider({ children }) {
   const [loading, setLoading] = useState(true)
   useEffect(() => {
     api.me().then((r) => setUser(isStaff(r.user) ? r.user : null)).catch(() => setUser(null)).finally(() => setLoading(false))
+    const out = () => setUser(null)
+    window.addEventListener('fino:unauthorized', out)
+    return () => window.removeEventListener('fino:unauthorized', out)
   }, [])
   const value = useMemo(() => ({
     user,

@@ -115,7 +115,7 @@ export function HistoryScreen({ query, now, onToast }) {
             <select id="fecha" value={fecha} onChange={(e) => setFecha(e.target.value)}><option value="hoy">Hoy</option><option value="ayer">Ayer</option><option value="7">Últimos 7 días</option></select>
           </label>
         </div>
-        {data && <p className="hsum"><b>{data.resumen.cantidad}</b> pedidos · <b>{formatPrice(data.resumen.totalEntregado)}</b> entregado</p>}
+        {data && <p className="hsum"><b>{data.resumen.cantidad}</b> {data.resumen.cantidad === 1 ? 'pedido' : 'pedidos'} · <b>{formatPrice(data.resumen.totalEntregado)}</b> entregado</p>}
         <div className="htable">
           <table aria-label="Pedidos">
             <thead><tr><th>Pedido</th><th>Hora</th><th>Cliente</th><th className="r">Total</th><th>Pago</th><th>Estado</th></tr></thead>

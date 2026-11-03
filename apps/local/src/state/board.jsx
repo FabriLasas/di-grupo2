@@ -74,6 +74,7 @@ export function BoardProvider({ children, onNew }) {
       'order:updated': (order) => dispatch({ type: 'upsert', order }),
       'store:updated': (store) => dispatch({ type: 'store', store }),
       disconnect: () => { wasDown = true; dispatch({ type: 'online', online: false }) },
+      connect_error: (err) => { if (err?.message === 'no_autenticado') window.dispatchEvent(new Event('fino:unauthorized')) },
       connect: () => { dispatch({ type: 'online', online: true }); if (wasDown) { wasDown = false; reload() } },
     }
     for (const [ev, fn] of Object.entries(handlers)) socket.on(ev, fn)
