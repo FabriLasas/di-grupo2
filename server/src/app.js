@@ -4,6 +4,8 @@ import cors from 'cors'
 import { errorHandler, notFound } from './lib/errors.js'
 import { authRoutes } from './auth/routes.js'
 import { adminRoutes } from './admin/routes.js'
+import { menuRoutes } from './menu/routes.js'
+import { storeRoutes, staffStoreRoutes } from './store/routes.js'
 
 /**
  * @param {{prisma: import('@prisma/client').PrismaClient, payments: object, realtime: {emitOrder: Function, emitStore: Function}, clock: {now: () => Date}, config: ReturnType<import('./config.js').loadConfig>}} deps
@@ -20,6 +22,9 @@ export function createApp(deps) {
   api.get('/health', (_req, res) => res.json({ ok: true }))
   api.use('/auth', authRoutes(deps))
   api.use('/admin', adminRoutes(deps))
+  api.use('/menu', menuRoutes(deps))
+  api.use('/store', storeRoutes(deps))
+  api.use('/staff/store', staffStoreRoutes(deps))
   app.use('/api', api)
 
   app.use(notFound)
