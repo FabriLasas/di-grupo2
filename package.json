@@ -10,6 +10,7 @@
   "scripts": {
     "test": "npm test -w @fino/shared && npm test -w @fino/server && npm test -w @fino/web && npm test -w @fino/local",
     "db:up": "docker compose up -d db",
-    "dev": "npm run dev -w @fino/server & npm run dev -w @fino/web & npm run dev -w @fino/local"
+    "dev": "node scripts/dev.mjs",
+    "setup": "npm run db:migrate -w @fino/server && npm run db:seed -w @fino/server && npm run db:open -w @fino/server"
   }
 }
